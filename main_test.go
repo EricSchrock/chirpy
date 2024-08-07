@@ -29,7 +29,7 @@ func getRequestTest(t *testing.T, path string, responseStatus int, responseBody 
 	}
 }
 
-func postRequestTest(t *testing.T, path string, requestBody string, responseStatus int, responseBody string) {
+func postRequestTest(t *testing.T, path string, requestBody string, responseStatus int, responseBody string, exactMatch bool) {
 	req, err := http.NewRequest(http.MethodPost, host+":"+port+path, bytes.NewReader([]byte(requestBody)))
 	if err != nil {
 		t.Fatal(err.Error())
@@ -46,7 +46,9 @@ func postRequestTest(t *testing.T, path string, requestBody string, responseStat
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		t.Fatal(err.Error())
-	} else if string(body) != responseBody {
+	} else if exactMatch && string(body) != responseBody {
+		t.Errorf("Unexpected body: %v", string(body))
+	} else if !strings.Contains(string(body), responseBody) {
 		t.Errorf("Unexpected body: %v", string(body))
 	}
 }
@@ -70,18 +72,20 @@ func TestMetrics(t *testing.T) {
 	getRequestTest(t, metricsAPI, http.StatusOK, "1 times", false)
 }
 
-func TestChirp(t *testing.T) {
-	postRequestTest(t, chirpAPI, `{"body": "hello"}`, http.StatusOK, `{"cleaned_body":"hello"}`)
+func TestChirps(t *testing.T) {
+	postRequestTest(t, chirpAPI, `{"body": "hello"}`, http.StatusCreated, `{"id":1,"body":"hello"}`, true)
+	postRequestTest(t, chirpAPI, `{"body": "world"}`, http.StatusCreated, `{"id":2,"body":"world"}`, true)
+	getRequestTest(t, chirpAPI, http.StatusOK, `[{"id":1,"body":"hello"},{"id":2,"body":"world"}]`, true)
 }
 
 func TestChirpLengthLimit(t *testing.T) {
-	postRequestTest(t, chirpAPI, `{"body": "`+strings.Repeat("hello", (chirpLengthLimit/len("hello"))+1)+`"}`, http.StatusBadRequest, `{"error":"Chirp is too long"}`)
+	postRequestTest(t, chirpAPI, `{"body": "`+strings.Repeat("hello", (chirpLengthLimit/len("hello"))+1)+`"}`, http.StatusBadRequest, `{"error":"Chirp is too long"}`, true)
 }
 
 func TestChirpProfanityFilter(t *testing.T) {
 	for _, profanity := range profanities {
 		t.Run(profanity, func(t *testing.T) {
-			postRequestTest(t, chirpAPI, `{"body": "abc `+profanity+` 123"}`, http.StatusOK, `{"cleaned_body":"abc **** 123"}`)
+			postRequestTest(t, chirpAPI, `{"body": "abc `+profanity+` 123"}`, http.StatusCreated, `"body":"abc **** 123"`, false)
 		})
 	}
 }

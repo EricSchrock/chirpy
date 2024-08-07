@@ -7,11 +7,17 @@ import (
 	"strings"
 )
 
-var chirpAPI string = "/api/validate_chirp"
+type chirp struct {
+	ID   int    `json:"id"`
+	Body string `json:"body"`
+}
+
+var chirpAPI string = "/api/chirps"
 var chirpLengthLimit int = 140
 var profanities []string = []string{"kerfuffle", "sharbert", "fornax"}
+var chirps = []chirp{}
 
-func validateChirpHandler(w http.ResponseWriter, r *http.Request) {
+func postChirpHandler(w http.ResponseWriter, r *http.Request) {
 	type request struct {
 		Body string `json:"body"`
 	}
@@ -28,11 +34,18 @@ func validateChirpHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	type response struct {
-		Body string `json:"cleaned_body"`
+	resp := chirp{
+		ID:   len(chirps) + 1,
+		Body: filterProfanity(req.Body),
 	}
 
-	respondWithJSON(w, http.StatusOK, response{filterProfanity(req.Body)})
+	chirps = append(chirps, resp)
+
+	respondWithJSON(w, http.StatusCreated, resp)
+}
+
+func getChirpHandler(w http.ResponseWriter, r *http.Request) {
+	respondWithJSON(w, http.StatusOK, chirps)
 }
 
 func filterProfanity(chirp string) string {

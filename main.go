@@ -26,7 +26,8 @@ func main() {
 	mux.HandleFunc(resetAPI, apiCfg.resetHandler)
 
 	// Back-end APIs (chirps)
-	mux.HandleFunc("POST "+chirpAPI, validateChirpHandler)
+	mux.HandleFunc("POST "+chirpAPI, postChirpHandler)
+	mux.HandleFunc("GET "+chirpAPI, getChirpHandler)
 
 	corsMux := middlewareCors(mux)
 	server := &http.Server{Addr: ":" + port, Handler: corsMux}
