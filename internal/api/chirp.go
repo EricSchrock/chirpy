@@ -1,4 +1,4 @@
-package main
+package api
 
 import (
 	"encoding/json"
@@ -12,12 +12,12 @@ type chirp struct {
 	Body string `json:"body"`
 }
 
-var chirpAPI string = "/api/chirps"
-var chirpLengthLimit int = 140
-var profanities = []string{"kerfuffle", "sharbert", "fornax"}
+var ChirpAPI string = "/api/chirps"
+var ChirpLengthLimit int = 140
+var Profanities = []string{"kerfuffle", "sharbert", "fornax"}
 var chirps = []chirp{}
 
-func postChirpHandler(w http.ResponseWriter, r *http.Request) {
+func PostChirpHandler(w http.ResponseWriter, r *http.Request) {
 	type request struct {
 		Body string `json:"body"`
 	}
@@ -29,7 +29,7 @@ func postChirpHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if len(req.Body) > chirpLengthLimit {
+	if len(req.Body) > ChirpLengthLimit {
 		respondWithError(w, http.StatusBadRequest, "Chirp is too long")
 		return
 	}
@@ -44,14 +44,14 @@ func postChirpHandler(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusCreated, resp)
 }
 
-func getChirpHandler(w http.ResponseWriter, r *http.Request) {
+func GetChirpHandler(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusOK, chirps)
 }
 
 func filterProfanity(chirp string) string {
 	words := strings.Split(chirp, " ")
 	for i, word := range words {
-		for _, profanity := range profanities {
+		for _, profanity := range Profanities {
 			if strings.ToLower(word) == profanity {
 				words[i] = "****"
 				break

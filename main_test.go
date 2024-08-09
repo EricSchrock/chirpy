@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"strings"
 	"testing"
+
+	"github.com/EricSchrock/chirpy/internal/api"
 )
 
 var host string = "http://localhost"
@@ -62,32 +64,32 @@ func TestLogo(t *testing.T) {
 }
 
 func TestHealth(t *testing.T) {
-	getRequestTest(t, healthAPI, http.StatusOK, "OK", true)
+	getRequestTest(t, api.HealthAPI, http.StatusOK, "OK", true)
 }
 
 func TestMetrics(t *testing.T) {
-	getRequestTest(t, resetAPI, http.StatusOK, "", true)
-	getRequestTest(t, metricsAPI, http.StatusOK, "0 times", false)
+	getRequestTest(t, api.ResetAPI, http.StatusOK, "", true)
+	getRequestTest(t, api.MetricsAPI, http.StatusOK, "0 times", false)
 	getRequestTest(t, home, http.StatusOK, "", false)
-	getRequestTest(t, metricsAPI, http.StatusOK, "1 times", false)
+	getRequestTest(t, api.MetricsAPI, http.StatusOK, "1 times", false)
 	getRequestTest(t, home, http.StatusOK, "", false)
-	getRequestTest(t, metricsAPI, http.StatusOK, "2 times", false)
+	getRequestTest(t, api.MetricsAPI, http.StatusOK, "2 times", false)
 }
 
 func TestChirps(t *testing.T) {
-	postRequestTest(t, chirpAPI, `{"body": "hello"}`, http.StatusCreated, `{"id":1,"body":"hello"}`, true)
-	postRequestTest(t, chirpAPI, `{"body": "world"}`, http.StatusCreated, `{"id":2,"body":"world"}`, true)
-	getRequestTest(t, chirpAPI, http.StatusOK, `[{"id":1,"body":"hello"},{"id":2,"body":"world"}]`, true)
+	postRequestTest(t, api.ChirpAPI, `{"body": "hello"}`, http.StatusCreated, `{"id":1,"body":"hello"}`, true)
+	postRequestTest(t, api.ChirpAPI, `{"body": "world"}`, http.StatusCreated, `{"id":2,"body":"world"}`, true)
+	getRequestTest(t, api.ChirpAPI, http.StatusOK, `[{"id":1,"body":"hello"},{"id":2,"body":"world"}]`, true)
 }
 
 func TestChirpLengthLimit(t *testing.T) {
-	postRequestTest(t, chirpAPI, `{"body": "`+strings.Repeat("hello", (chirpLengthLimit/len("hello"))+1)+`"}`, http.StatusBadRequest, `{"error":"Chirp is too long"}`, true)
+	postRequestTest(t, api.ChirpAPI, `{"body": "`+strings.Repeat("hello", (api.ChirpLengthLimit/len("hello"))+1)+`"}`, http.StatusBadRequest, `{"error":"Chirp is too long"}`, true)
 }
 
 func TestChirpProfanityFilter(t *testing.T) {
-	for _, profanity := range profanities {
+	for _, profanity := range api.Profanities {
 		t.Run(profanity, func(t *testing.T) {
-			postRequestTest(t, chirpAPI, `{"body": "abc `+profanity+` 123"}`, http.StatusCreated, `"body":"abc **** 123"`, false)
+			postRequestTest(t, api.ChirpAPI, `{"body": "abc `+profanity+` 123"}`, http.StatusCreated, `"body":"abc **** 123"`, false)
 		})
 	}
 }
