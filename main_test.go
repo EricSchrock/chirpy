@@ -70,6 +70,8 @@ func TestMetrics(t *testing.T) {
 	getRequestTest(t, metricsAPI, http.StatusOK, "0 times", false)
 	getRequestTest(t, home, http.StatusOK, "", false)
 	getRequestTest(t, metricsAPI, http.StatusOK, "1 times", false)
+	getRequestTest(t, home, http.StatusOK, "", false)
+	getRequestTest(t, metricsAPI, http.StatusOK, "2 times", false)
 }
 
 func TestChirps(t *testing.T) {

@@ -14,7 +14,7 @@ type chirp struct {
 
 var chirpAPI string = "/api/chirps"
 var chirpLengthLimit int = 140
-var profanities []string = []string{"kerfuffle", "sharbert", "fornax"}
+var profanities = []string{"kerfuffle", "sharbert", "fornax"}
 var chirps = []chirp{}
 
 func postChirpHandler(w http.ResponseWriter, r *http.Request) {
