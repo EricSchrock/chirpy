@@ -55,7 +55,6 @@ func TestMetrics(t *testing.T) {
 	requestTest(t, http.MethodGet, api.MetricsAPI, "", http.StatusOK, "1 times", false)
 	requestTest(t, http.MethodGet, home, "", http.StatusOK, "", false)
 	requestTest(t, http.MethodGet, api.MetricsAPI, "", http.StatusOK, "2 times", false)
-
 }
 
 func TestChirps(t *testing.T) {

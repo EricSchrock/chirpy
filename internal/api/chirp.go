@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"sort"
 	"strings"
 
 	"github.com/EricSchrock/chirpy/internal/database"
@@ -45,6 +46,10 @@ func GetChirpHandler(w http.ResponseWriter, r *http.Request) {
 		respondWithServerError(w, err)
 		return
 	}
+
+	sort.Slice(chirps, func(i, j int) bool {
+		return chirps[i].ID < chirps[j].ID
+	})
 
 	respondWithJSON(w, http.StatusOK, chirps)
 }
