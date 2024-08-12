@@ -1,5 +1,9 @@
 package database
 
+import (
+	"golang.org/x/exp/maps"
+)
+
 type Chirp struct {
 	ID   int    `json:"id"`
 	Body string `json:"body"`
@@ -24,10 +28,5 @@ func CreateChirp(body string) (Chirp, error) {
 }
 
 func GetChirps() ([]Chirp, error) {
-	c := make([]Chirp, 0, len(chirps.Chirps))
-	for _, v := range chirps.Chirps { // replace with maps.Values(chirps.Chirps) when Go 1.23 is released
-		c = append(c, v)
-	}
-
-	return c, nil
+	return maps.Values(chirps.Chirps), nil
 }
