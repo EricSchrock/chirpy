@@ -5,17 +5,13 @@ import (
 	"log"
 	"net/http"
 	"strings"
-)
 
-type chirp struct {
-	ID   int    `json:"id"`
-	Body string `json:"body"`
-}
+	"github.com/EricSchrock/chirpy/internal/database"
+)
 
 var ChirpAPI string = "/api/chirps"
 var ChirpLengthLimit int = 140
 var Profanities = []string{"kerfuffle", "sharbert", "fornax"}
-var chirps = []chirp{}
 
 func PostChirpHandler(w http.ResponseWriter, r *http.Request) {
 	type request struct {
@@ -34,18 +30,18 @@ func PostChirpHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp := chirp{
-		ID:   len(chirps) + 1,
+	resp := database.Chirp{
+		ID:   len(database.Chirps) + 1,
 		Body: filterProfanity(req.Body),
 	}
 
-	chirps = append(chirps, resp)
+	database.Chirps = append(database.Chirps, resp)
 
 	respondWithJSON(w, http.StatusCreated, resp)
 }
 
 func GetChirpHandler(w http.ResponseWriter, r *http.Request) {
-	respondWithJSON(w, http.StatusOK, chirps)
+	respondWithJSON(w, http.StatusOK, database.Chirps)
 }
 
 func filterProfanity(chirp string) string {
