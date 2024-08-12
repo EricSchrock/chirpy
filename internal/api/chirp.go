@@ -30,18 +30,23 @@ func PostChirpHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp := database.Chirp{
-		ID:   len(database.Chirps) + 1,
-		Body: filterProfanity(req.Body),
+	chirp, err := database.CreateChirp(filterProfanity((req.Body)))
+	if err != nil {
+		respondWithServerError(w, err)
+		return
 	}
 
-	database.Chirps = append(database.Chirps, resp)
-
-	respondWithJSON(w, http.StatusCreated, resp)
+	respondWithJSON(w, http.StatusCreated, chirp)
 }
 
 func GetChirpHandler(w http.ResponseWriter, r *http.Request) {
-	respondWithJSON(w, http.StatusOK, database.Chirps)
+	chirps, err := database.GetChirps()
+	if err != nil {
+		respondWithServerError(w, err)
+		return
+	}
+
+	respondWithJSON(w, http.StatusOK, chirps)
 }
 
 func filterProfanity(chirp string) string {
