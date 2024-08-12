@@ -5,19 +5,29 @@ type Chirp struct {
 	Body string `json:"body"`
 }
 
-var chirps = []Chirp{}
+type database struct {
+	Chirps map[int]Chirp `json:"chirps"`
+}
+
+var chirps = database{Chirps: map[int]Chirp{}}
 
 func CreateChirp(body string) (Chirp, error) {
+
 	chirp := Chirp{
-		ID:   len(chirps) + 1,
+		ID:   len(chirps.Chirps) + 1,
 		Body: body,
 	}
 
-	chirps = append(chirps, chirp)
+	chirps.Chirps[chirp.ID] = chirp
 
 	return chirp, nil
 }
 
 func GetChirps() ([]Chirp, error) {
-	return chirps, nil
+	c := make([]Chirp, 0, len(chirps.Chirps))
+	for _, v := range chirps.Chirps { // replace with maps.Values(chirps.Chirps) when Go 1.23 is released
+		c = append(c, v)
+	}
+
+	return c, nil
 }
